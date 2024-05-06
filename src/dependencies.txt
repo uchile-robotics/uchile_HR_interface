@@ -1,0 +1,10 @@
+pip install faster-whisper
+
+python3 -m pip install sounddevice
+pip install soundfile
+pip install gtts
+
+
+si algo deja de funcionar, esto hizo que funcionara:
+pip install --force-reinstall --no-binary :all: cffi
+pip3 install --upgrade pip
