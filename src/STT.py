@@ -10,7 +10,6 @@ class Hear(object):
     def __init__(self, args):
         super(Hear, self).__init__()
         self.model_size = "large-v3"
-        self.language = 'es'
         self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
         self.args = " "
         
@@ -26,8 +25,7 @@ class Hear(object):
         #Read message from audio file
         segments, info = self.model.transcribe(
             audio_file,
-            beam_size=5,
-            language="es"
+            beam_size=5
         )
         
         str_list = []
@@ -43,6 +41,7 @@ class Hear(object):
         
         msg = String()
         msg.data = message
+        #msg.data = "Linea de prueba"
         print("")
 
         rospy.loginfo("Publisher node started")
