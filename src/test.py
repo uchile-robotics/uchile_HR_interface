@@ -8,7 +8,7 @@ from gtts import gTTS
 from playsound import playsound
 from std_msgs.msg import String, Int32
 #el modulo de speech
-from pause_version import Speech 
+from TTS import Speech 
 #Prueba
 import time
 
