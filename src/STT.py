@@ -28,7 +28,7 @@ class SpeechTotext(object):
     def detect_name(self, text):
         
         #Read message from audio file
-        if re.search('bender', text) or re.search("vender", text):
+        if re.search('bender', text)  or re.search('Bender', text) or re.search('vender', text)  or re.search('Vender', text) or re.search('wender', text)  or re.search('Wender', text):
             return True
         else:
             return False
@@ -82,16 +82,17 @@ class SpeechTotext(object):
             return message
         
         else:
+
+            print("Mensaje ignorado")
             
-            return "Mensaje ignorado"
+            return ""
         
 
 
 def main():
     
-    audio_sample = "/home/robotica02/projects_ws/src/uchile_hr_interface/src/audio_samples/audio_rosa.m4a"
-    obj = SpeechTotext('args')
-    obj.Hear(audio_sample)
+    obj = SpeechTotext()
+    obj.Hear()
 
 
 if __name__ == '__main__':
