@@ -25,13 +25,6 @@ class SpeechTotext(object):
         
         return self.language
     
-    def detect_name(self, text):
-        
-        #Read message from audio file
-        if re.search('bender', text)  or re.search('Bender', text) or re.search('vender', text)  or re.search('Vender', text) or re.search('wender', text)  or re.search('Wender', text):
-            return True
-        else:
-            return False
             
             
     def Hear(self):
@@ -65,27 +58,23 @@ class SpeechTotext(object):
             
             
         message = " ".join(str_list)
-        print(message)
+        
 
         #message = "linea de prueba linea de prueba linea de prueba linea de prueba"
         
-        if self.detect_name(message):
+
             
-            msg = String()
-            msg.data = message
-            #msg.data = "Linea de prueba"
+        msg = String()
+        msg.data = message
+        #msg.data = "Linea de prueba"
 
-            rospy.loginfo("Publisher node started")
+        rospy.loginfo("Publisher node started")
 
-            self.pub.publish(msg)
-            print("mensaje publicado")
-            return message
+        self.pub.publish(msg)
+        print("mensaje publicado")
+        return message
         
-        else:
 
-            print("Mensaje ignorado")
-            
-            return ""
         
 
 

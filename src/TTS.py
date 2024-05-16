@@ -21,6 +21,9 @@ class Speech(object):
 
         #self.paused = False
 
+    def set_language(self, lang):
+        self.language = lang
+
     def Say(self, msg):
         print("the method was called!")
         """This method will be called everytime a new speech message is received."""

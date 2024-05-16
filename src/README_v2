@@ -1,0 +1,18 @@
+Detalles Código:
+
+script STT.py:
+
+En STT.py se crea la clase "SpeechToText" la cual inicializa el modelo de whisper, de tipo 
+"large-v3", y el "Recognizer" el cual reconoce el microfono conectado. El objetivo fundamental
+de esta clase es detectar un audio, transformarlo de audio a texto con whisper, y el string generado
+publicarlo en el topico "/speech". Lo anterior se realiza con el método Hear, el cual graba audio por una
+cierta cantidad de segundos, guarda el audio en "speech.wav", transforma el audio a texto mediante
+"WhisperModel" y finalmente publica el mensaje en el topico "/speech". Por otro lado, la clase
+posee además el método "get_language" que retorna el idioma del último audio escuchado.
+
+script TTS.py:
+
+En TTS se crea la clase "Speech", la cual contiene el método "Say" que transforma
+el String recibido en audio y emite este mismo. Tambien posee el método "Stop" que detiene
+la reproducción del audio. Por otra parte, el método "set_language" setea el idioma
+del audio que se generará.
