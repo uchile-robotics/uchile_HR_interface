@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #una version muy sencilla para play el speech
 import rospy  # Import ROS for Python
 import rospkg
@@ -7,13 +9,13 @@ from faster_whisper import WhisperModel
 from std_msgs.msg import String, Int32 # Import ROS messages of type String and Int32
 import speech_recognition as sr
 import pyttsx3  
-
+import time
 
 class SpeechTotext(object):
     def __init__(self):
         super(SpeechTotext, self).__init__()
         self.model_size = "large-v3"
-        self.model = WhisperModel(self.model_size, device="cpu", compute_type="int8")
+        self.model = WhisperModel(self.model_size, device="cuda", compute_type="int8")
         self.recognizer = sr.Recognizer()
         self.language = ""
         
@@ -43,10 +45,12 @@ class SpeechTotext(object):
         audio_file = "speech.wav"
         
         #Read message from audio file
+        print("recognizing...")
         segments, info = self.model.transcribe(
             audio_file,
             beam_size=5
         )
+        
         
         #Define the language detected
         self.language = info.language
@@ -58,6 +62,7 @@ class SpeechTotext(object):
             
             
         message = " ".join(str_list)
+        print("Recognized!")
         
 
         #message = "linea de prueba linea de prueba linea de prueba linea de prueba"

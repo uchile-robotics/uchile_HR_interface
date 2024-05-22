@@ -1,3 +1,4 @@
+#!/usr/bin/env python3.9
 
 from faster_whisper import WhisperModel
 from std_msgs.msg import String, Int32  # Import ROS messages of type String and Int32
