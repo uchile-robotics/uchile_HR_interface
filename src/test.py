@@ -4,8 +4,8 @@
 import rospy  
 import rospkg
 import numpy as np
-from gtts import gTTS
-from playsound import playsound
+#from gtts import gTTS
+#from playsound import playsound
 from std_msgs.msg import String, Int32
 #el modulo de speech
 from TTS import Speech 

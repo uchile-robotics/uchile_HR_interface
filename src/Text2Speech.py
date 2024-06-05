@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env /usr/bin/python3.9
 
 import rospy  
 import rospkg
@@ -21,7 +21,7 @@ class Speech(object):
             self.tts = TTS("tts_models/es/css10/vits").to(device)
         elif self.language == 'en':
             self.tts = TTS("tts_models/en/ljspeech/vits--neon").to(device)
-        self._speech_sub = rospy.Subscriber("/speech", String, self.Say)
+        self._speech_sub = rospy.Subscriber("/say", String, self.Say)
          
 
     def Say(self, msg):
