@@ -33,13 +33,14 @@ class SpeechTotext(object):
         """Este método trasnforma el audio escuchado a texto"""
         
         with sr.Microphone() as mic:
-
-            self.recognizer.adjust_for_ambient_noise(mic, duration=0.2)
-
+            print('Calibrating...')
+            self.recognizer.adjust_for_ambient_noise(mic, duration=2)
+            print('Calibrated!')
+            
             while not rospy.is_shutdown():
                 try:
                     print("Listening for speech...")
-                    audio = self.recognizer.listen(mic, phrase_time_limit=15)
+                    #audio = self.recognizer.listen(mic, phrase_time_limit=15, timeout=5)
                     try:
                         self.recognizer.recognize_google(audio)
                         print("Voice detected, saving audio...")

@@ -21,20 +21,25 @@ class SpeechTotext(object):
         # Publish a message
         self.pub = rospy.Publisher("/recognized_speech", String, queue_size=10)
         rospy.init_node('speech_hearing_topic', anonymous=True)  # Create and register the node!
+        with sr.Microphone() as mic:
+            print('Calibrating...')
+            self.recognizer.adjust_for_ambient_noise(mic, duration=10)
+            print('Calibrated!')
         
     def get_language(self):
         return self.language
     
     def Hear(self):
         """Este método trasnforma el audio escuchado a texto"""
-        with sr.Microphone() as mic:
-            self.recognizer.adjust_for_ambient_noise(mic, duration=0.2)
+        with sr.Microphone() as mic:            
             print("Recording...")
-            audio = self.recognizer.listen(mic, timeout=5)
+            audio = self.recognizer.listen(mic, phrase_time_limit=15, timeout=5)
 
             with open("speech.wav", "wb") as f:
                 f.write(audio.get_wav_data())
-                
+        
+            
+            
         audio_file = "speech.wav"
         
         #Read message from audio file
@@ -75,6 +80,12 @@ def main():
         except KeyboardInterrupt:
             rospy.loginfo("Shutting down speech to text node.")
             break
+
+        except sr.UnknownValueError:
+                        # Si el audio no contiene voz inteligible, continuar
+                        print("No voice detected.")
+        except sr.RequestError as e:
+            print(f"Could not request results; {e}")
 
 if __name__ == '__main__':
     main()

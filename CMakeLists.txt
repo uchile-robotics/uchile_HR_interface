@@ -205,11 +205,3 @@ include_directories(
 # catkin_add_nosetests(test)
 
 
-#Make nodes executables
-catkin_install_python(PROGRAMS src/STT.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-catkin_install_python(PROGRAMS src/STT_undefined.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
