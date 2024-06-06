@@ -213,7 +213,3 @@ catkin_install_python(PROGRAMS src/STT.py
 catkin_install_python(PROGRAMS src/STT_undefined.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-
-catkin_install_python(PROGRAMS src/Text2Speech.py
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)

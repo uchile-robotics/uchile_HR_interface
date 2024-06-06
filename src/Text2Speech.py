@@ -1,5 +1,4 @@
-#!/usr/bin/env /usr/bin/python3.9
-
+#!/usr/bin/env python3.9
 import rospy  
 import rospkg
 import numpy as np
