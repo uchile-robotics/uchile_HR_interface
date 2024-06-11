@@ -20,59 +20,78 @@ class SpeechTotext(object):
         
         # Publish a message
         self.pub = rospy.Publisher("/recognized_speech", String, queue_size=10)
-        rospy.init_node('speech_2_text_node', anonymous=True)  # Create and register the node!
+        rospy.init_node('speech_hearing_topic', anonymous=True)  # Create and register the node!
+        with sr.Microphone() as mic:
+            print('Calibrating...')
+            self.recognizer.adjust_for_ambient_noise(mic, duration=10)
+            print('Calibrated!')
+            print('Energy threshold:', self.recognizer.energy_threshold)
         
     def get_language(self):
         return self.language
     
     def Hear(self):
-        """Este método trasnforma el audio escuchado a texto"""
+        """Este método transforma el audio escuchado a texto"""
         with sr.Microphone() as mic:
-            self.recognizer.adjust_for_ambient_noise(mic, duration=0.2)
-            print("Recording...")
-            audio = self.recognizer.listen(mic, timeout=5)
-
+            try:
+                # audio = self.recognizer.listen(mic, phrase_time_limit=15, timeout=5)
+                print("Listening for speech...")
+                audio = self.recognizer.listen(mic)
+            except sr.WaitTimeoutError:
+                print("Listening timed out while waiting for phrase to start.")
+                return
+            except sr.UnknownValueError:
+            # Si el audio no contiene voz inteligible, continuar
+                print("No voice detected.")
+            
             with open("speech.wav", "wb") as f:
                 f.write(audio.get_wav_data())
-                
+            
         audio_file = "speech.wav"
         
-        #Read message from audio file
+        # Read message from audio file
         print("Recognizing...")
         segments, info = self.model.transcribe(
             audio_file,
             beam_size=5
         )
         
-        #Define the language detected
+        # Define the language detected
         self.language = info.language
         
         str_list = []
-        for segment in segments:
-            print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
-            str_list.append(segment.text)
-            
-        message = " ".join(str_list)
-        print("Recognized!")
         
-        msg = String()
-        msg.data = message
-        #msg.data = "Linea de prueba"
-        self.pub.publish(msg)
-        return message
+        print(f"Confidence: {info.language_probability}")
+        if info.language_probability >= 0.7:
+            for segment in segments:
+                # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+                print(segment.text)
+
+                str_list.append(segment.text)
+                
+            message = " ".join(str_list)
+            print("Recognized!")
+            
+            msg = String()
+            msg.data = message
+            self.pub.publish(msg)
+            return message
 
 def main():
     obj = SpeechTotext()
     rospy.loginfo("Speech to text node started, listening...")
-    rate = rospy.Rate(0.1)  # Adjust the rate as needed (0.1 Hz = 10 seconds)
     
     while not rospy.is_shutdown():
         try:
             obj.Hear()
-            rate.sleep()
         except KeyboardInterrupt:
             rospy.loginfo("Shutting down speech to text node.")
             break
+        except sr.UnknownValueError:
+            # Si el audio no contiene voz inteligible, continuar
+            print("No voice detected.")
+        except sr.RequestError as e:
+            print(f"Could not request results; {e}")
 
 if __name__ == '__main__':
     main()

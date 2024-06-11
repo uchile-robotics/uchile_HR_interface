@@ -25,6 +25,7 @@ class SpeechTotext(object):
             print('Calibrating...')
             self.recognizer.adjust_for_ambient_noise(mic, duration=10)
             print('Calibrated!')
+            print('Energy threshold:', self.recognizer.energy_threshold)
         
     def get_language(self):
         return self.language
@@ -37,8 +38,6 @@ class SpeechTotext(object):
 
             with open("speech.wav", "wb") as f:
                 f.write(audio.get_wav_data())
-        
-            
             
         audio_file = "speech.wav"
         
