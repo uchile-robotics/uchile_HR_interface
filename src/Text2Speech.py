@@ -16,6 +16,7 @@ class Speech(object):
     def __init__(self, args):
         super(Speech, self).__init__()
         self.args = args
+        print("modelo ini")
         self.language = 'es'
         if self.language == 'es':
             self.tts = TTS("tts_models/es/css10/vits").to(device)
@@ -38,6 +39,7 @@ class Speech(object):
         sd.stop()
 
 def main():
+    rospy.loginfo("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBB")
     rospy.init_node('speech_2_text_node')  # Create and register the node!
     obj = Speech('args')  # Instanciate speech
     rospy.spin()  # ROS function that prevents the program from ending - must be used with Subscribers

@@ -1,17 +1,18 @@
 #!/usr/bin/env python3.8
 import ollama
+import time
 
 #sorta need order 
 __import__('pysqlite3')
 import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
-
 import chromadb
-from utilities import readtext, getconfig 
-from mattsollamatools import chunker, chunk_text_by_sentences
 
-chroma = chromadb.HttpClient(host='localhost', port=8000)
+from mattsollamatools import chunker, chunk_text_by_sentences
+from utilities import readtext, getconfig 
+
+chroma = chromadb.HttpClient(host='localhost', port=9000)
 collection = chroma.get_or_create_collection(
     name="bendercontext"
 )
