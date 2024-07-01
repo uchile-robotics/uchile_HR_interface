@@ -3,13 +3,15 @@ from interaction_say import Say
 import rospy  # Import ROS for Python
 import rospkg
 
+rospy.init_node('main_test', anonymous=True)
 
-#rospy.init_node('main_test', anonymous=True)
+while not rospy.is_shutdown():
 
-text = Hear()
 
-print(text)
+    text = Hear()
 
-Say(text)
+    print(text)
 
-#rospy.spin()
+    Say(text)
+
+    #rospy.spin()

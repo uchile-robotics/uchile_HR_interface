@@ -39,7 +39,7 @@ class Speech(object):
         sd.stop()
 
 def main():
-    rospy.loginfo("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+    rospy.loginfo("tts_node started!")
     rospy.init_node('speech_2_text_node')  # Create and register the node!
     obj = Speech('args')  # Instanciate speech
     rospy.spin()  # ROS function that prevents the program from ending - must be used with Subscribers
