@@ -1,0 +1,8 @@
+<launch>
+
+    <!-- Nodo Text2Speech -->
+    <node name="speech_2_text_node" pkg="uchile_hr_interface" type="Text2Speech.py" output="screen" />
+
+    <!-- Nodo STT -->
+    <node name="text_2_speech_node" pkg="uchile_hr_interface" type="Speech2Text.py" output="screen" />
+</launch>
