@@ -106,10 +106,10 @@ class Instruction_command_state(smach.State):
         command = self.nlp_model.process_query(userdata.heared_data)
         rospy.loginfo("El comando que entrega ollama es: %s", command)
         userdata.command = command
-        return 'go_to_'
+        return 'go_to'
     
 class MoveTo(smach.State):
-    def __init__(self,robot):
+    def __init__(self):
         smach.State.__init__(self, input_keys=['command'], outcomes=['succeeded'])
     def execute(self, userdata):
         if userdata.command == "Go to the kitchen":
