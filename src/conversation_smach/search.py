@@ -11,7 +11,7 @@ class NLPProcessor:
         config = getconfig()
         self.embedmodel = config["embedmodel"]
         self.mainmodel = config["mainmodel"]
-        self.chroma = chromadb.PersistentClient(path="test")
+        self.chroma = chromadb.PersistentClient(path="/home/bender/catkin_ws/src/uchile_hr_interface/src/conversation_smach/test")
         self.collection = self.chroma.get_or_create_collection("buildragwithpython")
 
     def process_query(self, query):

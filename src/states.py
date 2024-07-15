@@ -73,16 +73,7 @@ class HearState(smach.State):
     def callback(self, msg):
         self.detected_speech = msg.data
 
-class Instruction_command_state(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['go_to_ollama'], input_keys=['heared_data'], output_keys=['command'])
-        self.nlp_model = NLPProcessor()
 
-    def execute(self, userdata):
-        command = self.nlp_model.process_query(userdata.heared_data)
-        rospy.loginfo("El comando que entrega ollama es: %s", command)
-        userdata.command = command
-        return 'go_to_ollama'
 
 
 class ConversationState(smach.State):
@@ -112,7 +103,7 @@ class MoveTo(smach.State):
     def __init__(self):
         smach.State.__init__(self, input_keys=['command'], outcomes=['succeeded'])
     def execute(self, userdata):
-        if userdata.command == "Go to the kitchen":
+        if userdata.command == "Go to the kitchen.":
             m = Move()
             x = -0.3029
             y = 1.81
