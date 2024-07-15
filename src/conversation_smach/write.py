@@ -32,10 +32,10 @@ with open('sourcedocs.txt') as f:
   for filename in lines:
     text = readtext(filename)
     chunks = chunk_text_by_sentences(source_text=text, sentences_per_chunk=7, overlap=0 ) #por defecto en 7
-    print(f"with {len(chunks)} chunks")
+    #print(f"with {len(chunks)} chunks")
     for index, chunk in enumerate(chunks):
       embed = ollama.embeddings(model=embedmodel, prompt=chunk)['embedding']
-      print(".", end="", flush=True)
+      #print(".", end="", flush=True)
       collection.add([filename+str(index)], [embed], documents=[chunk], metadatas={"source": filename})
     
 print("--- %s seconds ---" % (time.time() - starttime))
