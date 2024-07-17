@@ -9,6 +9,34 @@ from move_to import *
 from conversation_smach.search import NLPProcessor
 
 
+
+
+# Definir el estado que publica en el tópico speech
+class SpeechByInput(smach.State):
+    def __init__(self):
+        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['input_data'])
+
+    def execute(self, userdata):
+        rospy.loginfo('Publicando en el tópico /say: %s', userdata.input_data)
+        pub = rospy.Publisher('/say', String, queue_size=10)
+        rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
+        pub.publish(userdata.input_data)
+        return 'succeeded'
+    
+class SpeechByString(smach.State):
+    def __init__(self, speech_text):
+        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['input_data'])
+        self.speech_text = speech_text
+
+    def execute(self, userdata):
+        rospy.loginfo('Publicando en el tópico /say: %s', self.speech_text)
+        pub = rospy.Publisher('/say', String, queue_size=10)
+        rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
+        #self.speech_text = "llegue a la cocina"
+        pub.publish(self.speech_text)
+        return 'succeeded'
+
+
 class HearState(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['heared', 'timeout'], output_keys=['heared_data'])
@@ -51,7 +79,7 @@ class Instruction_command_state(smach.State):
     
 class Nav1(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['command'])
+        smach.State.__init__(self, outcomes=['Conversation'], input_keys=['command'])
         
 
     def execute(self, userdata):
@@ -65,7 +93,34 @@ class Nav1(smach.State):
             w = 0.0
             m.set_pose(x,y,w) 
             m.go()
-            return 'succeeded'
+            return 'Conversation'
+        elif userdata.command == "Bathroom":
+            rospy.loginfo("Bender fue al baño")
+            m = Move()
+            x = 1.695
+            y = 2.03
+            w = 0.0
+            m.set_pose(x,y,w) 
+            m.go()
+            return 'Conversation'
+        elif userdata.command == "Livingroom":
+            rospy.loginfo("Bender fue a la sala de estar")
+            #m = Move()
+            #x = 2.501
+            #y = 0.190
+            #w = 0.0
+            #m.set_pose(x,y,w) 
+            #m.go()
+            return 'Conversation'
+        elif userdata.command == "Bedroom":
+            rospy.loginfo("Bender fue al dormitorio")
+            #m = Move()
+            #x = 2.501
+            #y = 0.190
+            #w = 0.0
+            #m.set_pose(x,y,w) 
+            #m.go()
+            return 'Conversation'
         else:
             rospy.loginfo("Bender no hace nada")
             #m = Move()
@@ -74,7 +129,7 @@ class Nav1(smach.State):
             #w = 0.0
             #m.set_pose(x,y,w) 
             #m.go()
-            return 'succeeded'
+            return 'Conversation'
 
 
 
@@ -84,13 +139,15 @@ def main():
     rospy.init_node('smach_go')
 
     # Crear una máquina de estado SMACH
-    sm = smach.StateMachine(outcomes=['succeeded', 'timeout'])
+    sm = smach.StateMachine(outcomes=['succeeded', 'timeout']) 
 
     # Añadir estados a la máquina de estado
     with sm:
         smach.StateMachine.add('Hear', HearState(), transitions={'heared':'Commands', "timeout":"Hear"}, remapping={'heared_data':'heared_data'})
         smach.StateMachine.add('Commands', Instruction_command_state(), transitions={'go_to':'GoTo'}, remapping={'heared_data':'heared_data', "command":"command"})
-        smach.StateMachine.add('GoTo', Nav1(), transitions={'succeeded':'succeeded'}, remapping={'command':'command'})
+        smach.StateMachine.add('GoTo', Nav1(), transitions={'Conversation':'Conver'}, remapping={'command':'command'})
+        smach.StateMachine.add('Conver', SpeechByString("llegue a la cocina"), transitions={'succeeded':'succeeded'}, remapping={'input_data':'input_data'})
+
 
     # Ejecutar la máquina de estado
     outcome = sm.execute()
