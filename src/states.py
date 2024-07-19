@@ -29,19 +29,20 @@ class SpeechByInput(smach.State):
         pub = rospy.Publisher('/say', String, queue_size=10)
         rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
         pub.publish(userdata.input_data)
+        rospy.sleep(len(userdata.input_data)/20)
         return 'succeeded'
     
 class SpeechByString(smach.State):
     def __init__(self, speech_text):
-        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['input_data'])
+        smach.State.__init__(self, outcomes=['succeeded'])
         self.speech_text = speech_text
 
     def execute(self, userdata):
         rospy.loginfo('Publicando en el tópico /say: %s', self.speech_text)
         pub = rospy.Publisher('/say', String, queue_size=10)
         rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
-        self.speech_text = userdata.input_data
         pub.publish(self.speech_text)
+        rospy.sleep(len(self.speech_text)/20)
         return 'succeeded'
 
 
@@ -130,9 +131,9 @@ def main():
 
     # Añadir estados a la máquina de estado
     with sm:
-        smach.StateMachine.add('HEAR', HearState(), transitions={'heared':'Conversation', 'timeout':'HEAR'}, remapping={'heared_data':'command'})
-        smach.StateMachine.add('Conversation', ConversationState(), transitions={'succeeded':'SPEECH'}, remapping={'command':'command', 'ollama_answer':'ollama_answer'})
-        smach.StateMachine.add('SPEECH', SpeechByInput(), transitions={'succeeded':'succeeded'}, remapping={'input_data':'ollama_answer'})
+        # smach.StateMachine.add('HEAR', HearState(), transitions={'heared':'Conversation', 'timeout':'HEAR'}, remapping={'heared_data':'command'})
+        # smach.StateMachine.add('Conversation', ConversationState(), transitions={'succeeded':'SPEECH'}, remapping={'command':'command', 'ollama_answer':'ollama_answer'})
+        smach.StateMachine.add('SPEECH', SpeechByString('Hola Soy Bender'), transitions={'succeeded':'succeeded'})
 
     # Ejecutar la máquina de estado
     outcome = sm.execute()

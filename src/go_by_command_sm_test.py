@@ -10,33 +10,6 @@ from conversation_smach.search import NLPProcessor
 
 
 
-
-# Definir el estado que publica en el tópico speech
-class SpeechByInput(smach.State):
-    def __init__(self):
-        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['input_data'])
-
-    def execute(self, userdata):
-        rospy.loginfo('Publicando en el tópico /say: %s', userdata.input_data)
-        pub = rospy.Publisher('/say', String, queue_size=10)
-        rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
-        pub.publish(userdata.input_data)
-        return 'succeeded'
-    
-class SpeechByString(smach.State):
-    def __init__(self, speech_text):
-        smach.State.__init__(self, outcomes=['succeeded'], input_keys=['input_data'])
-        self.speech_text = speech_text
-
-    def execute(self, userdata):
-        rospy.loginfo('Publicando en el tópico /say: %s', self.speech_text)
-        pub = rospy.Publisher('/say', String, queue_size=10)
-        rospy.sleep(1)  # Esperar un momento para asegurarse de que el nodo está conectado
-        #self.speech_text = "llegue a la cocina"
-        pub.publish(self.speech_text)
-        return 'succeeded'
-
-
 class HearState(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes=['heared', 'timeout'], output_keys=['heared_data'])
