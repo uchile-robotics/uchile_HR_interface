@@ -5,7 +5,7 @@ import rospkg
 import numpy as np
 import re
 from faster_whisper import WhisperModel
-from std_msgs.msg import String, Int32 # Import ROS messages of type String and Int32
+from std_msgs.msg import String, Int32, Bool # Import ROS messages of type String, Int32, and Bool
 import speech_recognition as sr
 import pyttsx3  
 import time
@@ -17,32 +17,43 @@ class SpeechTotext(object):
         self.model = WhisperModel(self.model_size, device="cuda", compute_type="int8")
         self.recognizer = sr.Recognizer()
         self.language = ""
+        self.listening = False
         
         # Publish a message
         self.pub = rospy.Publisher("/recognized_speech", String, queue_size=10)
         rospy.init_node('speech_hearing_topic', anonymous=True)  # Create and register the node!
+        
+        # Subscribe to the "listening" topic
+        self.sub = rospy.Subscriber("/listening", Bool, self.callback_listening)
+        
         with sr.Microphone() as mic:
             print('Calibrating...')
             self.recognizer.adjust_for_ambient_noise(mic, duration=10)
             print('Calibrated!')
             print('Energy threshold:', self.recognizer.energy_threshold)
+    
+    def callback_listening(self, msg):
+        self.listening = msg.data
+        rospy.loginfo(f"Listening status changed: {self.listening}")
         
     def get_language(self):
         return self.language
     
     def Hear(self):
         """Este método transforma el audio escuchado a texto"""
+        if not self.listening:
+            return
+        
         with sr.Microphone() as mic:
             try:
-                # audio = self.recognizer.listen(mic, phrase_time_limit=15, timeout=5)
                 print("Listening for speech...")
                 audio = self.recognizer.listen(mic)
             except sr.WaitTimeoutError:
                 print("Listening timed out while waiting for phrase to start.")
                 return
             except sr.UnknownValueError:
-            # Si el audio no contiene voz inteligible, continuar
                 print("No voice detected.")
+                return
             
             with open("speech.wav", "wb") as f:
                 f.write(audio.get_wav_data())
@@ -64,9 +75,7 @@ class SpeechTotext(object):
         print(f"Confidence: {info.language_probability}")
         if info.language_probability >= 0.7:
             for segment in segments:
-                # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
                 print(segment.text)
-
                 str_list.append(segment.text)
                 
             message = " ".join(str_list)
@@ -79,7 +88,7 @@ class SpeechTotext(object):
 
 def main():
     obj = SpeechTotext()
-    rospy.loginfo("Speech to text node started, listening...")
+    rospy.loginfo("Speech to text node started, waiting for listening signal...")
     
     while not rospy.is_shutdown():
         try:
@@ -88,7 +97,6 @@ def main():
             rospy.loginfo("Shutting down speech to text node.")
             break
         except sr.UnknownValueError:
-            # Si el audio no contiene voz inteligible, continuar
             print("No voice detected.")
         except sr.RequestError as e:
             print(f"Could not request results; {e}")
