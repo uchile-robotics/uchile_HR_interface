@@ -12,7 +12,7 @@ class Dummy(smach.State):
         
     def execute(self, userdata):
         rospy.loginfo('skibidi')
-        rospy.sleep(5)
+        rospy.sleep(10)
         return 'succeeded'
 
 def main():

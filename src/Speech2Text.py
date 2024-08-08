@@ -20,7 +20,7 @@ class SpeechTotext(object):
         self.listening = False
         
         # Publish a message
-        self.pub = rospy.Publisher("/recognized_speech", String, queue_size=10)
+        self.pub = rospy.Publisher("/recognized_speech", String, queue_size=0)
         rospy.init_node('speech_hearing_topic', anonymous=True)  # Create and register the node!
         
         # Subscribe to the "listening" topic
@@ -41,50 +41,54 @@ class SpeechTotext(object):
     
     def Hear(self):
         """Este método transforma el audio escuchado a texto"""
-        if not self.listening:
-            return
+        if self.listening == False:
+            pass
         
-        with sr.Microphone() as mic:
-            try:
-                print("Listening for speech...")
-                audio = self.recognizer.listen(mic)
-            except sr.WaitTimeoutError:
-                print("Listening timed out while waiting for phrase to start.")
-                return
-            except sr.UnknownValueError:
-                print("No voice detected.")
-                return
-            
-            with open("speech.wav", "wb") as f:
-                f.write(audio.get_wav_data())
-            
-        audio_file = "speech.wav"
-        
-        # Read message from audio file
-        print("Recognizing...")
-        segments, info = self.model.transcribe(
-            audio_file,
-            beam_size=5
-        )
-        
-        # Define the language detected
-        self.language = info.language
-        
-        str_list = []
-        
-        print(f"Confidence: {info.language_probability}")
-        if info.language_probability >= 0.7:
-            for segment in segments:
-                print(segment.text)
-                str_list.append(segment.text)
+        elif self.listening:
+            self.listening = False
+            with sr.Microphone() as mic:
+                try:
+                    print("Listening for speech...")
+                    audio = self.recognizer.listen(mic)
+                except sr.WaitTimeoutError:
+                    print("Listening timed out while waiting for phrase to start.")
+                    return
+                except sr.UnknownValueError:
+                    print("No voice detected.")
+                    return
                 
-            message = " ".join(str_list)
-            print("Recognized!")
+                with open("speech.wav", "wb") as f:
+                    f.write(audio.get_wav_data())
             
-            msg = String()
-            msg.data = message
-            self.pub.publish(msg)
-            return message
+                audio_file = "speech.wav"
+                
+                # Read message from audio file
+                print("Recognizing...")
+                segments, info = self.model.transcribe(
+                    audio_file,
+                    beam_size=5
+                )
+                
+                # Define the language detected
+                self.language = info.language
+                
+                str_list = []
+                
+                print(f"Confidence: {info.language_probability}")
+                if info.language_probability >= 0.7:
+                    for segment in segments:
+                        print(segment.text)
+                        str_list.append(segment.text)
+                        
+                    message = " ".join(str_list)
+                    print("Recognized!")
+                    
+                    msg = String()
+                    msg.data = message
+                    self.pub.publish(msg)
+                    return message
+        else:
+            return
 
 def main():
     obj = SpeechTotext()
