@@ -89,7 +89,7 @@ Una vez instalados los requisitos, basta con clonar el paquete de ROS con los ar
 
 El código implementado para utilizar FasterWhisper se encuentra en `Speech2Text.py`. Este código implementa la clase *SpeechToText* que inicializa el modelo FasterWhisper tal como se presenta a continuación:
 
-![whisper](Template_latex_FI2003__espanol/whisper.png)
+![whisper](images/whisper.png)
 
 Siendo `self.model` la variable que contiene al modelo con los parámetros correspondientes. De esta forma, utilizando el método *Hear* de la clase *SpeechToText*, el modelo escucha constantemente el entorno. En caso de oír alguna voz, transcribe el mensaje y lo publica en el nodo `recognized_speech`.
 
