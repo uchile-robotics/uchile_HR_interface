@@ -1,0 +1,8 @@
+prefix=/usr/local
+
+Name: uchile_hr_interface
+Description: Description of uchile_hr_interface
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

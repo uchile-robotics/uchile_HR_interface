@@ -56,8 +56,6 @@ dist/
 *.swp
 *.tmp
 *.sw?
-/build
-/devel
 
 # Jupyter-generated files
 .ipynb_checkpoints/
