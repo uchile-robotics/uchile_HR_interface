@@ -1,169 +1,211 @@
-# uchile_HR_interface
+# Uchile Human-Robot Interface
 
-# Guía de instalación 
+Repo for Speech recognition and text to speech
 
-## Modelo speech to text
+## Requirements
 
-FasterWhisper es una librería *Speech to Text* que reimplementa el modelo Whisper de OpenAI. Su principal característica es su gran velocidad a la hora de convertir texto en audio (Se necesita GPU para aprovechar esta característica).
+In order to install the requirements you must install python 3.9 or greater.
 
-### Requerimientos Faster-Whisper
+### Python 3.9 installation
 
-- Se requiere Python 3.8 o superior
-- Instalar cuBLAS: [https://developer.nvidia.com/cublas](https://developer.nvidia.com/cublas)
-- Instalar cuDNN: [https://developer.nvidia.com/cudnn](https://developer.nvidia.com/cudnn)
+(FG): Hay que tener ojo, esto solo sirve para el speech to text y el text to speech.
+Para instalar ollama, chromadb y todo eso, hay que revisar porque parece que hay que tener una versión más actualizada de python (más que python3.9) (pero no cacho porque solamente alcancé a usar el stt y el tts).
 
-### Instalación Faster-Whisper
 
-Para instalar ambas librerías se deben seguir los pasos indicados en el siguiente enlace:
+1. Update the packages list and install the prerequisites:
 
-[https://medium.com/geekculture/install-cuda-and-cudnn-on-windows-linux-52d1501a8805](https://medium.com/geekculture/install-cuda-and-cudnn-on-windows-linux-52d1501a8805)
-
-Para más información sobre la instalación y la utilización de la librería, visitar el GitHub de Faster-Whisper:
-
-[https://github.com/SYSTRAN/faster-whisper?tab=readme-ov-file](https://github.com/SYSTRAN/faster-whisper?tab=readme-ov-file)
-
-## Modelo text to speech
-
-CoquiTTS es una librería "Text to Speech" que proporciona modelos avanzados de síntesis de voz. Se puede utilizar mediante CPU como GPU.
-
-### Requerimientos CoquiTTS
-
-- Se necesita Python >= 3.9, < 3.12.
-
-### Instalación CoquiTTS
-
-Para la instalación de la librería CoquiTTS y sintetizar la voz utilizando los modelos proporcionados por Coqui, se debe ejecutar el siguiente comando:
-
-- `pip install TTS`
-
-Para más información en la implementación y desarrollo de otros modelos, consultar a:
-
-- [https://docs.coqui.ai/en/latest/models/xtts.html](https://docs.coqui.ai/en/latest/models/xtts.html)
-
-Si después upgradear python, la terminal deja de funcionar, se hará necesario utlizar alguno de estos comandos para mantener python3.8 como motor del sistema. Los siguientes comandos pueden ser de utilidad:
-
-```
-sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
-
-sudo nano /usr/bin/gnome-terminal
-
-change #!/usr/bin/python3.9 to #!/usr/bin/python3 
-
-sudo update-alternatives --config python3
-
-and then select python3.8
+``` bash
+sudo apt update
+sudo apt install software-properties-common
 ```
 
-## Modelo NLP
+2. Add the deadsnakes PPA to your system’s sources list:
 
-El NLP que utiliza el proyecto trabaja con contexto, por lo cual opera en conjunto con una base de datos vectorial. En esta sección se destacan dos componentes importantes:
+``` bash
+sudo add-apt-repository ppa:deadsnakes/ppa
+```
 
-**ChromaDB:** Base de datos vectorial usada por su sencillez al trabajar con LLMs.
+3. Once the repository is enabled, you can install Python 3.9 by executing:
 
-**Ollama:** API de Meta que facilita la descarga, configuración, entre otros de LLMs.
+``` bash
+sudo apt install python3.9
+```
 
-### Requerimientos
+4. Verify that the installation was successful by typing:
 
-- Python 3.8 o superior
-- GPU para mejor rendimiento
+``` bash
+python3.9 --version
+```
+``` bash
+# Output:
+Python 3.9.1+
+```
 
-### Instalación
+#### Virtual Environment creation
 
-**ChromaDB:** Se puede instalar con el comando: `pip install chromadb`.
+To avoid conflicting installations of python packages, 
+we recommend that you create a virtual environment 
+(you can choose the name of your virtual environment):
 
-*Notar que requiere una versión de SQLite mayor a 3.35. En caso de cualquier inconveniente consultar en: [https://docs.trychroma.com/troubleshooting](https://docs.trychroma.com/troubleshooting)*
+```bash
+cd ~/
+python3.9 -m venv <name-of-environment>
+```
 
-**Ollama:** Las versiones de Windows, Linux y MacOS se encuentran en: [https://ollama.com/download](https://ollama.com/download) y en Ubuntu se puede utilizar `sudo apt install ollama`.
+Then to activate it, you must run the following command:
 
-**Modelos en Ollama:** Después de correr nuestra API con `ollama serve`, podemos llamar modelos con el siguiente comando:
+```bash
+source ~/<name-of-environment>/bin/activate
+```
 
-`Ollama pull <nombre del modelo>`
+### CUDA clean install
 
-Para más comandos útiles, consultar: [https://medium.com/@sridevi17j/step-by-step-guide-setting-up-and-running-ollama-in-windows-macos-linux-a00f21164bf3](https://medium.com/@sridevi17j/step-by-step-guide-setting-up-and-running-ollama-in-windows-macos-linux-a00f21164bf3)
+Install CUDA and CUDNN
 
-Una vez instalados los requisitos, basta con clonar el paquete de ROS con los archivos necesarios para el funcionamiento en un *catkin workspace* y compilarlo. El paquete se encuentra en: [https://github.com/uchile-robotics/uchile_hr_interface](https://github.com/uchile-robotics/uchile_hr_interface).
+First you must update your OS
+```bash
+sudo apt update && sudo apt upgrade
+```
 
-# Guía de uso 
+Remove all CUDA, CUDNN and Nvidia Drivers:
+```bash
+sudo apt-get remove --purge -y '*nvidia*' '*cuda*' 'libcudnn*' 'libnccl*' '*cudnn*' '*nccl*'
+sudo apt-get autoremove --purge -y
+sudo apt-get clean
+```
+Check if there's any installed packages left:
 
-## Modelo speech to text
+```bash
+dpkg -l | grep -E 'nvidia|cuda|cudnn|nccl'
+```
+If there is any packages left, you must run:
 
-El código implementado para utilizar FasterWhisper se encuentra en `Speech2Text.py`. Este código implementa la clase *SpeechToText* que inicializa el modelo FasterWhisper tal como se presenta a continuación:
+```bash
+packages=('*nvidia*' '*cuda*' 'libcudnn*' 'libnccl*' '*cudnn*' '*nccl*')
+for pack in "${packages[@]}"; do
+    echo "Removing $pack..."
+    sudo apt remove --purge -y "$pack"
+done
+```
+#### Detecting and managing drivers on ubuntu
 
-![whisper](images/whisper.png)
+```bash
+ubuntu-drivers devices
+```
+We will install the NVIDIA driver tagged recommended — 
+Which indicates which drivers are recommended for each piece 
+of hardware based on compatibility and performance.
 
-Siendo `self.model` la variable que contiene al modelo con los parámetros correspondientes. De esta forma, utilizando el método *Hear* de la clase *SpeechToText*, el modelo escucha constantemente el entorno. En caso de oír alguna voz, transcribe el mensaje y lo publica en el nodo `recognized_speech`.
+```bash
+sudo ubuntu-drivers autoinstall
+```
 
-## Modelo text to speech
+##### Install Nvidia Drivers
 
-Existen dos tipos de modelos dentro de los que se encuentran al instalar CoquiTTS, los cuales pueden ser multilenguaje o trabajar con solo uno:
+My recommended version is 555, change “XYZ” in the following command to your recommended driver:
 
-1. **Single Speaker**: Este corresponde a un modelo con solo un speaker (voz).
-2. **Multi Speaker**: Este corresponde a un modelo que contiene más de un speaker.
+```bash
+sudo apt install nvidia-driver-XYZ
+```
 
-### Implementación del Código
+Reboot the system for these changes to take effect.
 
-![tts](images/tts.png)
+```bash
+reboot
+```
+##### Check Installation
 
-El código implementado para utilizar CoquiTTS se encuentra en `Text2Speech.py`. Este código implementa la clase *Speech* que inicializa el modelo CoquiTTS. En este código se utilizaron dos modelos **Single Speaker** los cuales son determinados según el lenguaje reconocido por el modelo **Speech To Text** nombrado anteriormente. Así, inicializa el nodo de ROS, crea una instancia de la clase `Speech` y mantiene el nodo en funcionamiento para recibir y procesar mensajes de texto. Este método convierte el texto recibido en audio utilizando CoquiTTS y guarda el audio generado en el archivo `output.wav`, para finalmente reproducirlo.
+After reboot verify that the following command works 
+(in order to verify that the nvidia drivers are properly installed)
 
-*Esto se debe a la velocidad del modelo utilizando CPU, el único método disponible al momento del desarrollo del código. Debido a ello, aunque se ejecuta en el menor tiempo posible, utiliza voces diferentes para español e inglés.*
+```bash
+nvidia-smi
+```
 
-## Modelo NLP
+It's recommended that before installing CUDA you check 
+[PyTorch's website](https://pytorch.org/get-started/locally/#start-locally)
+to install the newest supported version of PyTorch (and its corresponding CUDA version). In that 
+website you can find the CUDA versions which are supported by torch. You should 
+search the [CUDA versions here](https://developer.nvidia.com/cuda-toolkit-archive).
 
-### Modificar LLMs:
 
-Los modelos del proyecto son personalizables, por lo cual podemos referenciar los que queramos en el archivo llamado `config.ini`. Debemos usar un modelo de lenguaje y uno de embedding que es el que trabaja con la base de datos vectorial.
+In our case we'll be installing CUDA 12.4 for Ubuntu 20.04 with architecture x86_64. Before installing, you must check for any `.deb` or `.pin` files in home directory.
 
-**Nota 1:** Se deben descargar los modelos desde la API de Ollama antes de correr los archivos.
+```bash
+cd ~/
+rm cuda*
+```
+Now we proceed with the installation:
 
-**Nota 2:** Es necesario descargar e importar el archivo `utilities.py`, para que la configuración funcione correctamente.
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
 
-### Guardar el contexto
+sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
 
-**Importante:** Solo es necesario hacer este proceso la primera vez que se corre el proyecto, o cada vez que se modifiquen los archivos de contexto.
+wget https://developer.download.nvidia.com/compute/cuda/12.4.0/local_installers/cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
 
-En un archivo separado, escribir una lista con los archivos que contienen el contexto con su extensión. En el proyecto la lista se hace en `sourcedocs.txt`, pero se puede modificar siempre que se cambie el directorio del archivo en la línea 30 de `write.py`, que es la siguiente:
+sudo dpkg -i cuda-repo-ubuntu2004-12-4-local_12.4.0-550.54.14-1_amd64.deb
 
-![referencia](images/referencia.png)
+sudo cp /var/cuda-repo-ubuntu2004-12-4-local/cuda-*-keyring.gpg /usr/share/keyrings/
 
-Una vez hecho esto, escoger dónde se guardará la instancia de ChromaDB en la línea 21 y correr `write.py` para guardar el contexto en la base de datos.
+sudo apt-get update
 
-### Consultas al NLP
+sudo apt-get -y install cuda-toolkit-12-4
+```
 
-Lo primero es indicar dónde se encuentra la instancia de la base de datos para que el modelo pueda sacar la información, en la línea 14 de `search.py`:
+Now we check if CUDA is installed correctly:
 
-![línea de chroma](images/linea_de_chroma.png)
+```bash
+nvcc --version
+```
+If you are not getting the CUDA version as output, do the following:
 
-Una vez hecho esto, tendremos acceso a la clase `NLPProcessor` y mediante su función `process_query()` podremos realizar consultas al NLP.
+Creating a symlink for easier reference
+```bash
+sudo ln -s /usr/local/cuda-12.4 /usr/local/cuda
+```
 
-## Funcionamiento General
+Add the CUDA paths to your `.bashrc` file to ensure they are set up every time you open a terminal.
 
-Para utilizar la interfaz humano-robot de Bender, en primer lugar se debe correr el archivo `audio_perception.launch` mediante el comando `roslaunch`. Este archivo ejecuta los códigos `Text2Speech.py` y `Speech2Text.py`, de esta forma los modelos text-to-speech y speech-to-text estarán corriendo en paralelo.
+```bash
+# if you're using bash terminal:
+echo 'export PATH=/usr/local/cuda-12.4/bin:$PATH' >> ~/.bashrc
+```
 
-Por una parte, la máquina de estado de conversación funciona con los siguientes estados:
+```bash
+# if you're using zsh terminal:
+echo 'export PATH=/usr/local/cuda-12.4/bin:$PATH' >> ~/.zshrc
+```
 
-1. `HearState`: Obtiene el mensaje escuchado en el tópico `recognized_speech` y lo guarda como información para el siguiente estado.
-2. `ConversationState`: Recibe un input, lo procesa utilizando Ollama y retorna la respuesta del LLM como información para el siguiente estado.
-3. `SpeechByInput`: Recibe información del estado anterior y la reproduce como Speech del robot.
+Then close the terminal and open a new one. Then check the installation with the `nvcc --version` command. If that command outputs something similar to :
 
-A continuación, se muestra el código de los estados implementados:
+```bash
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2024 NVIDIA Corporation
+Built on Thu_Mar_28_02:18:24_PDT_2024
+Cuda compilation tools, release 12.4, V12.4.131
+Build cuda_12.4.r12.4/compiler.34097967_0
+```
 
-![Conversation SM](images/conversation.png)
+Then the CUDA installation was succesful.
 
-Por otro lado, el archivo `go_by_command_sm_test.py` implementa las máquinas de estado para realizar la interfaz indicada. Las máquinas de estado son:
+### Installing CUDNN
 
-1. `HearState`: Obtiene el mensaje escuchado en el tópico `recognized_speech` y lo guarda como información para el siguiente estado.
-2. `Instruction_command_state`: Recibe el mensaje escuchado de `HearState` y lo transforma a un comando específico mediante el modelo LLM.
-3. `Nav1`: Recibe el comando específico de `Instruction_command_state` y dependiendo de la ubicación a la que haga referencia este comando (ej: Kitchen), el robot se desplazará a esa zona.
-4. `SpeechByString`: El robot indica mediante voz que ha llegado a la zona especificada.
+Now we'll install CUDNN. To check the compatible CUDNN version with your CUDA installation you must [Check Here](https://docs.nvidia.com/deeplearning/cudnn/latest/reference/support-matrix.html#id17)
 
-De esta forma, al ejecutar el archivo `go_by_command_sm_test.py`, el usuario puede indicarle por voz a Bender la ubicación específica a la cual quiere que este se desplace.
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get -y install cudnn9-cuda-12 # This command is for our case only, you must check the compatible CUDNN version for your CUDA installation
+```
 
-Si se quieren agregar otras ubicaciones o agregar más comandos, se debe modificar el contexto de Bender en el archivo indicado en la sección **Modelo NLP**.
+### Installation of Pip packages
 
-A continuación, se presenta el flujo de los 4 estados indicados anteriormente:
+Activating the created virtual environment from earlier:
 
-![estados](images/estados.png)
-
-Es importante notar que existen dos estados diferentes para sintetizar voz: `SpeechByInput`
+```bash
+source ~/<name-of-environment>/bin/activate
+pip3 install torch torchvision torchaudio TTS
+```
 
